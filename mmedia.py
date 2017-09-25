@@ -11,6 +11,8 @@ from tqdm import tqdm
 from time import sleep
 import datetime
 
+#
+
 class TargetFile:
     def __init__(self, tags):
         self.tags = tags
@@ -81,7 +83,7 @@ class TargetFile:
 
     def execMove(self, test=True):
         if test == False and self.skip == False:
-            shutil.move(self.src_path, self.dest_path)
+            shutil.move(str(self.src_path), str(self.dest_path))
 
 
 class FileScan:
