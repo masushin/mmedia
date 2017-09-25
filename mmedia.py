@@ -121,8 +121,8 @@ def main():
         tqdm.write("Preparing to move files ..")
         for target in target_files:
             pbar.set_description(desc=Path(target.tags['SourceFile']).name)
-            pbar.update(1)
             target.execArrange(Path(args.dest_path).resolve())
+            pbar.update(1)
 
     with tqdm(total=len(target_files)) as pbar:
         tqdm.write("Moving files ..")
@@ -131,8 +131,8 @@ def main():
                 pbar.update(1)
                 continue
             tqdm.write("Move : {} -> {}".format(target.src_path.relative_to(Path(args.target_path).resolve()), target.dest_path.relative_to(Path(args.dest_path).resolve())))
-            pbar.update(1)
             target.execMove(test=args.test)
+            pbar.update(1)
 
 if __name__ == '__main__':
     main()
