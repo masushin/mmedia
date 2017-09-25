@@ -53,7 +53,7 @@ class TargetFile:
         if not 'Model' in self.tags:
             self.tags['Model'] = "Unknown"
 
-        modelname = re.sub(" ", "", self.tags['Model'], re.MULTILINE)
+        modelname = re.sub("[ /]", "", self.tags['Model'], re.MULTILINE)
         filename = Path("{}_{}{}_{}{}{}_{}_{}{}".format(self.date['year'],self.date['month'],self.date['day'],
                                               self.date['hour'],self.date['minute'],self.date['second'],
                                               self.date['msec'],modelname,src_path.suffix))
