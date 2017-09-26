@@ -69,7 +69,7 @@ class TargetFile:
                 filename_suffix = filename.suffix
                 filename_stem = filename.stem
                 for i in range(1,999):
-                    filename = filename_stem/"{}".format(i)/filename_suffix
+                    filename = dest_path/Path("{}_{:03d}{}".format(filename_stem,i,filename_suffix))
                     if not filename.exists():
                         break
                 else:
