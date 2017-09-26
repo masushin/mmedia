@@ -62,7 +62,7 @@ class TargetFile:
         dest_path.mkdir(parents=True, exist_ok=True)
 
         if dest_path.joinpath(filename).exists():
-            if filecmp.cmp(str(src_path), str(dest_path.joinpath(filename)):
+            if filecmp.cmp(str(src_path), str(dest_path.joinpath(filename))):
                 print("Dupricated : {}".format(src_path))
                 return True
             else:
