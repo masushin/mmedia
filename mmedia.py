@@ -64,12 +64,10 @@ class TargetFile:
                 filename = Path("{}_{}{}_{}{}{}_{}_{}{}".format(self.date['year'],self.date['month'],self.date['day'],
                                                     self.date['hour'],self.date['minute'],self.date['second'],
                                                     self.date['msec'],modelname,src_path.suffix))
-                print("{} :: {}".format(i,filename))
             else:
                 filename = Path("{}_{}{}_{}{}{}_{}_{}_{:03d}{}".format(self.date['year'],self.date['month'],self.date['day'],
                                                     self.date['hour'],self.date['minute'],self.date['second'],
                                                     self.date['msec'],modelname,i,src_path.suffix))
-                print("{} :: {}".format(i,filename))
 
             if dest_path.joinpath(filename).exists():
                 if filecmp.cmp(str(src_path), str(dest_path.joinpath(filename))):
