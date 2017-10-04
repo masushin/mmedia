@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 import filecmp
+import tempfile
 import re
 import shutil
 from tqdm import tqdm
@@ -54,28 +55,42 @@ class TargetFile:
             self.tags['Model'] = "Unknown"
 
         modelname = re.sub("[ /]", "", self.tags['Model'], re.MULTILINE)
-        filename = Path("{}_{}{}_{}{}{}_{}_{}{}".format(self.date['year'],self.date['month'],self.date['day'],
-                                              self.date['hour'],self.date['minute'],self.date['second'],
-                                              self.date['msec'],modelname,src_path.suffix))
 
         dest_path = Path(dest).resolve().joinpath('{}'.format(self.date['year']),'{}'.format(modelname))
         dest_path.mkdir(parents=True, exist_ok=True)
 
-        if dest_path.joinpath(filename).exists():
-            if filecmp.cmp(str(src_path), str(dest_path.joinpath(filename))):
-                print("Dupricated : {}".format(src_path))
-                return True
+        for i in range(0,999):
+            if i == 0:
+                filename = Path("{}_{}{}_{}{}{}_{}_{}{}".format(self.date['year'],self.date['month'],self.date['day'],
+                                                    self.date['hour'],self.date['minute'],self.date['second'],
+                                                    self.date['msec'],modelname,src_path.suffix))
+                print("{} :: {}".format(i,filename))
             else:
-                filename_suffix = filename.suffix
-                filename_stem = filename.stem
-                for i in range(1,999):
-                    filename = dest_path/Path("{}_{:03d}{}".format(filename_stem,i,filename_suffix))
-                    if not filename.exists():
-                        break
-                else:
-                    print("Can't rename target file..")
-                    return False
+                filename = Path("{}_{}{}_{}{}{}_{}_{}_{:03d}{}".format(self.date['year'],self.date['month'],self.date['day'],
+                                                    self.date['hour'],self.date['minute'],self.date['second'],
+                                                    self.date['msec'],modelname,i,src_path.suffix))
+                print("{} :: {}".format(i,filename))
 
+            if dest_path.joinpath(filename).exists():
+                if filecmp.cmp(str(src_path), str(dest_path.joinpath(filename))):
+                    print("Dupricated : {}".format(src_path))
+                    return True
+
+                with tempfile.TemporaryDirectory() as tempdir:
+                    file = Path(tempdir).joinpath(filename)
+                    shutil.copy2(str(src_path), str(file))
+                    if filecmp.cmp(str(file), str(dest_path.joinpath(filename))):
+                        print("Dupricated : {}".format(src_path))
+                        return True
+
+                continue
+            else:
+                break
+
+        else:
+            print("Can't rename target file..")
+            return False
+        
         self.src_path = src_path
         self.dest_path = dest_path/filename
         self.skip = False
@@ -83,7 +98,7 @@ class TargetFile:
 
     def execMove(self, test=True):
         if test == False and self.skip == False:
-            shutil.move(str(self.src_path), str(self.dest_path))
+            shutil.copy2(str(self.src_path), str(self.dest_path))
 
 
 class FileScan:
@@ -120,19 +135,10 @@ def main():
     filescan = FileScan(Path(args.target_path).resolve(), recursive=args.recursive)
     target_files = filescan.exec()
     with tqdm(total=len(target_files)) as pbar:
-        tqdm.write("Preparing to move files ..")
+        tqdm.write("Moving files ..")
         for target in target_files:
             pbar.set_description(desc=Path(target.tags['SourceFile']).name)
             target.execArrange(Path(args.dest_path).resolve())
-            pbar.update(1)
-
-    with tqdm(total=len(target_files)) as pbar:
-        tqdm.write("Moving files ..")
-        for target in target_files:
-            if target.skip:
-                pbar.update(1)
-                continue
-            tqdm.write("Move : {} -> {}".format(target.src_path.relative_to(Path(args.target_path).resolve()), target.dest_path.relative_to(Path(args.dest_path).resolve())))
             target.execMove(test=args.test)
             pbar.update(1)
 
