@@ -98,7 +98,7 @@ class TargetFile:
 
     def execMove(self, test=True):
         if test == False and self.skip == False:
-            shutil.copy2(str(self.src_path), str(self.dest_path))
+            shutil.move(str(self.src_path), str(self.dest_path))
 
 
 class FileScan:
