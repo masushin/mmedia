@@ -18,11 +18,11 @@ all_debug_flag = False
 class TargetFile:
     def __init__(self, tags, debug=False):
         self.tags = tags
+        self.debug = debug
         self.date = self._getDate(tags)
         self.src_path = None
         self.dest_path = None
         self.skip = True
-        self.debug = debug
 
     def _getDate(self, tags):
         if "SubSecDateTimeOriginal" in tags:
@@ -34,15 +34,16 @@ class TargetFile:
         else:
             dt = datetime.datetime.fromtimestamp(os.stat(self.tags['SourceFile']).st_mtime)
             return {'year':"{0:04d}".format(dt.year), 'month':"{0:02d}".format(dt.month),
-                    'day':"{0:02d}".format(dt.day), 'hour':"{0:02d}".format(dt.hour),
+                    'day':"{0:02d}".format(dt.day),
+                    'hour':"{0:02d}".format(dt.hour),
                     'minute':"{0:02d}".format(dt.minute),'second':"{0:02d}".format(dt.second),
                     'msec':"000"}
 
         if self.debug == True:
-            print("{}".frmat(creation_date_value))
+            print("{}".format(creation_date_value))
 
         creation_date_re = re.search("(?P<year>[0-9]{4}):(?P<month>[0-9]{2}):(?P<day>[0-9]{2}) "
-                                        "(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2}):(?P<second>[0-9]{2})\.(?P<msec>[0-9]{3})",
+                                        "(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2}):(?P<second>[0-9]{2})\.(?P<msec>[0-9]{,6})",
                                     creation_date_value, re.MULTILINE)
 
         return {'year':creation_date_re.group("year"), 'month':creation_date_re.group("month"), 'day':creation_date_re.group("day"),
