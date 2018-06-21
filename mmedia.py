@@ -13,6 +13,7 @@ from time import sleep
 import datetime
 
 #
+all_debug_flag = False
 
 class TargetFile:
     def __init__(self, tags):
@@ -35,6 +36,9 @@ class TargetFile:
                     'day':"{0:02d}".format(dt.day), 'hour':"{0:02d}".format(dt.hour),
                     'minute':"{0:02d}".format(dt.minute),'second':"{0:02d}".format(dt.second),
                     'msec':"000"}
+
+        if all_debug_flag == True:
+            print("{}".frmat(creation_date_value))
 
         creation_date_re = re.search("(?P<year>[0-9]{4}):(?P<month>[0-9]{2}):(?P<day>[0-9]{2}) "
                                         "(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2}):(?P<second>[0-9]{2})\.(?P<msec>[0-9]{3})",
@@ -123,12 +127,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--test", action="store_true", default=False)
     parser.add_argument("-r", "--recursive", action="store_true", default=False)
+    parser.add_argument("--debug", action="store_true", default=False)
     parser.add_argument("target_path")
     parser.add_argument("dest_path")
     args = parser.parse_args()
     if False in [Path(args.target_path).is_dir(),Path(args.dest_path).is_dir()]:
         sys.stderr.write("Target/Destination path is not found.")
         sys.exit()
+
+    if args.debug == True:
+        all_debug_flag = True
 
     filescan = FileScan(Path(args.target_path).resolve(), recursive=args.recursive)
     target_files = filescan.exec()
