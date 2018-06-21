@@ -16,12 +16,13 @@ import datetime
 all_debug_flag = False
 
 class TargetFile:
-    def __init__(self, tags):
+    def __init__(self, tags, debug=False):
         self.tags = tags
         self.date = self._getDate(tags)
         self.src_path = None
         self.dest_path = None
         self.skip = True
+        self.debug = debug
 
     def _getDate(self, tags):
         if "SubSecDateTimeOriginal" in tags:
@@ -37,7 +38,7 @@ class TargetFile:
                     'minute':"{0:02d}".format(dt.minute),'second':"{0:02d}".format(dt.second),
                     'msec':"000"}
 
-        if all_debug_flag == True:
+        if self.debug == True:
             print("{}".frmat(creation_date_value))
 
         creation_date_re = re.search("(?P<year>[0-9]{4}):(?P<month>[0-9]{2}):(?P<day>[0-9]{2}) "
@@ -104,9 +105,10 @@ class TargetFile:
 
 
 class FileScan:
-    def __init__(self, target_path, recursive):
+    def __init__(self, target_path, recursive, debug=False):
         self.target_path = target_path
         self.is_recursive = recursive
+        self.debug = debug
         return
 
     def exec(self):
@@ -119,7 +121,7 @@ class FileScan:
         data = json.loads(completed_process.stdout.decode('utf-8'))
         target_files = []
         for file in data:
-            target_files.append(TargetFile(file))
+            target_files.append(TargetFile(file, self.debug))
 
         return target_files
 
@@ -135,11 +137,7 @@ def main():
         sys.stderr.write("Target/Destination path is not found.")
         sys.exit()
 
-    if args.debug == True:
-        print("Enable debug flag.")
-        all_debug_flag = True
-
-    filescan = FileScan(Path(args.target_path).resolve(), recursive=args.recursive)
+    filescan = FileScan(Path(args.target_path).resolve(), args.recursive, args.debug)
     target_files = filescan.exec()
     with tqdm(total=len(target_files)) as pbar:
         tqdm.write("Moving files ..")
