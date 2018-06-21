@@ -136,6 +136,7 @@ def main():
         sys.exit()
 
     if args.debug == True:
+        print("Enable debug flag.")
         all_debug_flag = True
 
     filescan = FileScan(Path(args.target_path).resolve(), recursive=args.recursive)
